@@ -31,6 +31,8 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 
 /**
  *
@@ -39,15 +41,17 @@ import javafx.scene.image.Image;
 public class NewFXMain1 extends Application implements MouseListener {
     
     MediaPlayer mediaPlayer;
+    MediaView mediaView;
+    Media media = new Media(new File("C:\\Users\\Shiv\\Videos\\Baarish - Half Girlfriend - Arjun K & Shraddha K - Ash King & Shashaa Tirupati - Tanishk Bagchi(1).mp4").toURI().toString());
     @Override
     public void start(Stage primaryStage) throws FileNotFoundException {
 
     //The location of your file
-        Media media = new Media(new File("C:\\Users\\Shiv\\Videos\\Baarish - Half Girlfriend - Arjun K & Shraddha K - Ash King & Shashaa Tirupati - Tanishk Bagchi(1).mp4").toURI().toString());
+        //Media media = new Media(new File("C:\\Users\\Shiv\\Videos\\Baarish - Half Girlfriend - Arjun K & Shraddha K - Ash King & Shashaa Tirupati - Tanishk Bagchi(1).mp4").toURI().toString());
 
         mediaPlayer = new MediaPlayer(media);
         mediaPlayer.setAutoPlay(true);
-        MediaView mediaView = new MediaView(mediaPlayer);
+        mediaView = new MediaView(mediaPlayer);
 
         BorderPane borderPane = new BorderPane();
         borderPane.setBottom(mediaView);
@@ -67,14 +71,14 @@ public class NewFXMain1 extends Application implements MouseListener {
         primaryStage.setScene(scene);
         primaryStage.show();
     }
-    Button playButton,pauseButton,forwardButton,backButton;
+    Button playButton,pauseButton,forwardButton,backButton,filesButton;
     private HBox addToolBar() throws FileNotFoundException {
         HBox toolBar = new HBox();
         //toolBar.setPadding(new Insets(10,10,10,10));
         toolBar.setAlignment(Pos.TOP_CENTER);
         toolBar.alignmentProperty().isBound();
         toolBar.setSpacing(5);
-        toolBar.setStyle("-fx-background-color: Cyan");
+        toolBar.setStyle("-fx-background-color: white");
         //File imageFile = new File("C:\\Users\\Shiv\\Documents\\NetBeansProjects\\student\\Play.png");
         //File pic=new File(this.getClass().getResource("C:\\Users\\Shiv\\Documents\\NetBeansProjects\\student\\Play.png").getFile());
         //FileInputStream fis=new FileInputStream(pic);
@@ -90,28 +94,43 @@ public class NewFXMain1 extends Application implements MouseListener {
         //pauseButton.setStyle("-fx-background-color: Orange");
 
         playButton.setOnAction((ActionEvent e) -> {
-            //playButton.setStyle("-fx-background-color: Blue");
-            playButton.setStyle("-fx-graphic: url('Play.png')");
+            //playButton.setStyle("-fx-background-color: Blue");   
             mediaPlayer.play();
         });
         pauseButton.setOnAction((ActionEvent e) -> {
-            pauseButton.setStyle("-fx-graphic: url('Pause.png')");
             mediaPlayer.pause();
         });
         
         backButton = new Button();
         forwardButton = new Button();
+        filesButton = new Button();
         //playButton.setGraphic(new ImageView(playButtonImage));
-        backButton.setStyle("-fx-background-color: grey");
-        forwardButton.setStyle("-fx-background-color: grey");
+        pauseButton.setStyle("-fx-graphic: url('Pause.png')");
+        playButton.setStyle("-fx-graphic: url('Play.png')");
+        backButton.setStyle("-fx-graphic: url('back.png')");
+        forwardButton.setStyle("-fx-graphic: url('fast.png')");
+        filesButton.setStyle("-fx-graphic: url('file.png')");
         //playButton.setGraphic(new ImageView(playimage));
         //pauseButton.setStyle("-fx-background-color: Orange");
         
         backButton.setOnAction((ActionEvent e) -> {
-            mediaPlayer.seek(mediaPlayer.getCurrentTime().divide(1.5));
+            mediaPlayer.seek(mediaPlayer.getCurrentTime().divide(1.2));
         });
         forwardButton.setOnAction((ActionEvent e) -> {
-            mediaPlayer.seek(mediaPlayer.getCurrentTime().multiply(1.5));
+            mediaPlayer.seek(mediaPlayer.getCurrentTime().multiply(1.2));
+        });
+        
+        filesButton.setOnAction((ActionEvent e) -> {
+            FileChooser fc = new FileChooser();
+            fc.getExtensionFilters().add(new ExtensionFilter("*.flv", "*.mp4", "*.mpeg"));
+            File file = fc.showOpenDialog(null);
+            String path = file.getAbsolutePath();
+            path = path.replace("\\", "/");
+            media = new Media(new File(path).toURI().toString());
+            mediaPlayer.stop();
+            mediaPlayer = new MediaPlayer(media);
+            mediaPlayer.setAutoPlay(true);
+            mediaView.setMediaPlayer(mediaPlayer);
         });
         
         /*playButton.addEventHandler(MouseEvent.MOUSE_ENTERED, (MouseEvent e) -> {
@@ -119,7 +138,7 @@ public class NewFXMain1 extends Application implements MouseListener {
         playButton.setStyle("-fx-body-color: Black");
         });*/
 
-        toolBar.getChildren().addAll(playButton,pauseButton,forwardButton,backButton);
+        toolBar.getChildren().addAll(filesButton,playButton,pauseButton,backButton,forwardButton);
         return toolBar;
     }
     /**
