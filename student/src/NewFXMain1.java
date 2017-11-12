@@ -5,6 +5,8 @@
  */
 
 import java.awt.Color;
+
+import javafx.scene.image.Image;
 import java.awt.Paint;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -12,18 +14,22 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import static java.lang.Math.floor;
 import static java.lang.String.format;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import static javafx.application.Platform.runLater;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.media.Media;
@@ -34,6 +40,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Screen;
 import javafx.util.Duration;
 import javax.swing.JOptionPane;
 
@@ -42,37 +49,57 @@ import javax.swing.JOptionPane;
  * @author Shiv
  */
 public class NewFXMain1 extends Application implements MouseListener {
-    
+    FileChooser fc;
     MediaPlayer mediaPlayer;
     MediaView mediaView;
-    Media media = new Media(new File("C:\\Users\\Shiv\\Videos\\Baarish - Half Girlfriend - Arjun K & Shraddha K - Ash King & Shashaa Tirupati - Tanishk Bagchi(1).mp4").toURI().toString());
+    Media media;
+    Button enter = new Button();
     @Override
     public void start(Stage primaryStage) throws FileNotFoundException {
 
     //The location of your file
         //Media media = new Media(new File("C:\\Users\\Shiv\\Videos\\Baarish - Half Girlfriend - Arjun K & Shraddha K - Ash King & Shashaa Tirupati - Tanishk Bagchi(1).mp4").toURI().toString());
-
-        mediaPlayer = new MediaPlayer(media);
-        mediaPlayer.setAutoPlay(true);
-        mediaView = new MediaView(mediaPlayer);
-
+        ImageView img=new ImageView();
+        Image image = new Image("Play.png");
+        img.setImage(image);
         BorderPane borderPane = new BorderPane();
-        borderPane.setCenter(mediaView);
-        
-        borderPane.setTop(addToolBar());
-        borderPane.setStyle("-fx-background-color: Cyan");
-        Scene scene = new Scene(borderPane, 600, 600);
-        //scene.setFill(Color.BLACK);
         DropShadow dropshadow = new DropShadow();
         dropshadow.setOffsetY(5.0);
         dropshadow.setOffsetX(5.0);
-        //dropshadow.setColor(Color.WHITE);
-
-        mediaView.setEffect(dropshadow);
+        enter.setText("OPEN (whatever you want to do man!!!)");
+        enter.setOnAction((ActionEvent e) -> {
+            try {
+                fc = new FileChooser();
+                fc.getExtensionFilters().add(new ExtensionFilter("*.flv", "*.mp4", "*.mpeg"));
+                File file = fc.showOpenDialog(null);
+                String path = file.getAbsolutePath();
+                path = path.replace("\\", "/");
+                media = new Media(new File(path).toURI().toString());
+                //mediaPlayer.stop();
+                mediaPlayer = new MediaPlayer(media);
+                mediaPlayer.setAutoPlay(true);
+                mediaView = new MediaView(mediaPlayer);
+                mediaView.setFitWidth(1200);
+                mediaView.setFitHeight(600);
+                mediaView.autosize();
+                
+                borderPane.setCenter(mediaView);
+                
+                borderPane.setBottom(addToolBar());
+                borderPane.setStyle("-fx-background-color: Black");
+                mediaView.setEffect(dropshadow);
+            } catch (Exception ex) {
+                Logger.getLogger(NewFXMain1.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+        borderPane.setCenter(enter);
+        Scene scene = new Scene(borderPane, 1000, 700);
+        img.setEffect(dropshadow);
     
         primaryStage.setTitle("Media Player!");
         primaryStage.setScene(scene);
         primaryStage.show();
+     
     }
     Button playButton,pauseButton,forwardButton,backButton,filesButton,startButton,endButton;
     Slider volumeSlider,timeSlider,slider;
@@ -83,7 +110,7 @@ public class NewFXMain1 extends Application implements MouseListener {
     private HBox addToolBar() throws FileNotFoundException {
         HBox toolBar = new HBox();
         //toolBar.setPadding(new Insets(10,10,10,10));
-        toolBar.setAlignment(Pos.BOTTOM_LEFT);
+        toolBar.setAlignment(Pos.BOTTOM_CENTER);
         toolBar.alignmentProperty().isBound();
         toolBar.setSpacing(5);
         toolBar.setStyle("-fx-background-color: Cyan");
@@ -139,29 +166,60 @@ public class NewFXMain1 extends Application implements MouseListener {
         });
         
         filesButton.setOnAction((ActionEvent e) -> {
-            FileChooser fc = new FileChooser();
-            fc.getExtensionFilters().add(new ExtensionFilter("*.flv", "*.mp4", "*.mpeg"));
-            File file = fc.showOpenDialog(null);
-            String path = file.getAbsolutePath();
-            path = path.replace("\\", "/");
-            media = new Media(new File(path).toURI().toString());
-            mediaPlayer.stop();
-            mediaPlayer = new MediaPlayer(media);
-            mediaPlayer.setAutoPlay(true);
-            mediaView.setMediaPlayer(mediaPlayer);
+            try{
+                FileChooser fc1 = new FileChooser();
+                fc1.getExtensionFilters().add(new ExtensionFilter("*.flv", "*.mp4", "*.mpeg"));
+                File file = fc1.showOpenDialog(null);
+                String path = file.getAbsolutePath();
+                path = path.replace("\\", "/");
+                media = new Media(new File(path).toURI().toString());
+                mediaPlayer.stop();
+                mediaPlayer = new MediaPlayer(media);
+                mediaPlayer.setAutoPlay(true);
+                mediaView.setMediaPlayer(mediaPlayer);
+                time = new Label();
+                //time.setTextFill((javafx.scene.paint.Paint)(Paint)Color.WHITE);
+                time.setPrefWidth(80);
+
+                mediaPlayer.currentTimeProperty().addListener((Observable ov) -> {
+                    currentTime = mediaPlayer.getCurrentTime();
+                    updateValues(currentTime);
+                });
+
+                mediaPlayer.setOnReady(() -> {
+                duration = mediaPlayer.getMedia().getDuration();
+                    currentTime = mediaPlayer.getCurrentTime();
+                    updateValues(currentTime);
+                });
+                timeSlider = new Slider();
+                HBox.setHgrow(timeSlider,Priority.ALWAYS);
+                timeSlider.setMinWidth(50);
+                timeSlider.setMaxWidth(8*Double.SIZE);
+                mediaPlayer.currentTimeProperty().addListener((obs, oldTime, newTime) -> {
+                if (!timeSlider.isValueChanging()) {
+                    timeSlider.setValue(newTime.toSeconds());
+                }
+                });
+                timeSlider.valueProperty().addListener(new InvalidationListener() {
+                public void invalidated(Observable ov) {
+                if (timeSlider.isValueChanging()) {
+                        System.out.println(timeSlider.getValue());
+                        mediaPlayer.seek(Duration.seconds(timeSlider.getValue()));
+                        currentTime = Duration.seconds(timeSlider.getValue());
+                    }
+                }
+                });
+
+            }
+            catch(Exception ex1) {
+                ;
+            }
+
         });
         
-        /*playButton.addEventHandler(MouseEvent.MOUSE_ENTERED, (MouseEvent e) -> {
-        playButton.setStyle("-fx-background-color: Black");
-        playButton.setStyle("-fx-body-color: Black");
-        });*/
-         
+       
         // Add the volume label
         volumeLabel = new Label("Vol: ");
-       // toolBar.getChildren().add(volumeLabel);
-       // Add Time label
-       
-        
         // Add Volume slider
         volumeSlider = new Slider();        
         volumeSlider.setPrefWidth(70);
@@ -194,7 +252,11 @@ public class NewFXMain1 extends Application implements MouseListener {
         HBox.setHgrow(timeSlider,Priority.ALWAYS);
         timeSlider.setMinWidth(50);
         timeSlider.setMaxWidth(8*Double.SIZE);
-        
+        mediaPlayer.currentTimeProperty().addListener((obs, oldTime, newTime) -> {
+        if (!timeSlider.isValueChanging()) {
+            timeSlider.setValue(newTime.toSeconds());
+        }
+        });
         timeSlider.valueProperty().addListener(new InvalidationListener() {
         public void invalidated(Observable ov) {
         if (timeSlider.isValueChanging()) {
@@ -204,19 +266,8 @@ public class NewFXMain1 extends Application implements MouseListener {
             }
         }
         });
-        
-        /*timeSlider.setOnMouseClicked((MouseEvent mouseEvent) -> {
-            mediaPlayer.seek(Duration.seconds(slider.getValue()));
-        });*/
-        /*slider = new Slider();
-        mediaPlayer.currentTimeProperty().addListener((ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) -> {
-            slider.setValue(newValue.toSeconds());
-        });
-        slider.setOnMouseClicked((MouseEvent mouseEvent) -> {
-            mediaPlayer.seek(Duration.seconds(slider.getValue()));
-        });*/
+       
         toolBar.getChildren().addAll(filesButton,startButton,backButton,playButton,pauseButton,forwardButton,endButton,time,timeSlider,volumeLabel,volumeSlider);
-        
         return toolBar;
     }
     
@@ -274,6 +325,7 @@ public class NewFXMain1 extends Application implements MouseListener {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        //Startframe startfr = new Startframe();
         launch(args);
     }
 
