@@ -5,34 +5,37 @@
  */
 
 import java.awt.Color;
-import java.awt.Graphics;
-import javafx.fxml.FXML;
-import java.awt.Insets;
+import java.awt.Paint;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.image.ImageObserver;
-import java.awt.image.ImageProducer;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import static java.lang.Math.floor;
+import static java.lang.String.format;
 import javafx.application.Application;
+import static javafx.application.Platform.runLater;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
-import javafx.scene.image.Image;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.util.Duration;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -54,11 +57,10 @@ public class NewFXMain1 extends Application implements MouseListener {
         mediaView = new MediaView(mediaPlayer);
 
         BorderPane borderPane = new BorderPane();
-        borderPane.setBottom(mediaView);
-        borderPane.setCenter(addToolBar());
-
-        borderPane.setStyle("-fx-background-color: Black");
-
+        borderPane.setCenter(mediaView);
+        
+        borderPane.setTop(addToolBar());
+        borderPane.setStyle("-fx-background-color: Cyan");
         Scene scene = new Scene(borderPane, 600, 600);
         //scene.setFill(Color.BLACK);
         DropShadow dropshadow = new DropShadow();
@@ -67,18 +69,24 @@ public class NewFXMain1 extends Application implements MouseListener {
         //dropshadow.setColor(Color.WHITE);
 
         mediaView.setEffect(dropshadow);
+    
         primaryStage.setTitle("Media Player!");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
-    Button playButton,pauseButton,forwardButton,backButton,filesButton;
+    Button playButton,pauseButton,forwardButton,backButton,filesButton,startButton,endButton;
+    Slider volumeSlider,timeSlider;
+    Label volumeLabel;
+    Label time;
+    Duration duration;
     private HBox addToolBar() throws FileNotFoundException {
         HBox toolBar = new HBox();
         //toolBar.setPadding(new Insets(10,10,10,10));
-        toolBar.setAlignment(Pos.TOP_CENTER);
+        toolBar.setAlignment(Pos.BOTTOM_LEFT);
         toolBar.alignmentProperty().isBound();
         toolBar.setSpacing(5);
-        toolBar.setStyle("-fx-background-color: white");
+        toolBar.setStyle("-fx-background-color: Cyan");
+        
         //File imageFile = new File("C:\\Users\\Shiv\\Documents\\NetBeansProjects\\student\\Play.png");
         //File pic=new File(this.getClass().getResource("C:\\Users\\Shiv\\Documents\\NetBeansProjects\\student\\Play.png").getFile());
         //FileInputStream fis=new FileInputStream(pic);
@@ -92,13 +100,22 @@ public class NewFXMain1 extends Application implements MouseListener {
         pauseButton = new Button();
         //playButton.setGraphic(new ImageView(playimage));
         //pauseButton.setStyle("-fx-background-color: Orange");
-
+        startButton=new Button();
+        endButton=new Button();
         playButton.setOnAction((ActionEvent e) -> {
             //playButton.setStyle("-fx-background-color: Blue");   
             mediaPlayer.play();
         });
         pauseButton.setOnAction((ActionEvent e) -> {
             mediaPlayer.pause();
+        });
+        startButton.setOnAction((ActionEvent e)->{
+        
+            mediaPlayer.seek(Duration.ZERO);
+        });
+        endButton.setOnAction((ActionEvent e)->{
+        
+            mediaPlayer.seek(Duration.INDEFINITE);
         });
         
         backButton = new Button();
@@ -137,10 +154,113 @@ public class NewFXMain1 extends Application implements MouseListener {
         playButton.setStyle("-fx-background-color: Black");
         playButton.setStyle("-fx-body-color: Black");
         });*/
+         
+        // Add the volume label
+        volumeLabel = new Label("Vol: ");
+       // toolBar.getChildren().add(volumeLabel);
+       // Add Time label
+       
+        
+        // Add Volume slider
+        volumeSlider = new Slider();        
+        volumeSlider.setPrefWidth(70);
+        volumeSlider.setMaxWidth(Region.USE_PREF_SIZE);
+        volumeSlider.setMinWidth(30);
+        volumeSlider.setValue(50);
+        mediaPlayer.setVolume(volumeSlider.getValue());
+        volumeSlider.valueProperty().addListener(new InvalidationListener() {
+        public void invalidated(Observable ov) {
+        if (volumeSlider.isValueChanging()) {
+                mediaPlayer.setVolume(volumeSlider.getValue() / 100.0);
+                
+            }
+        }
+        });
+        time = new Label();
+        //time.setTextFill((javafx.scene.paint.Paint)(Paint)Color.WHITE);
+        time.setPrefWidth(80);
 
-        toolBar.getChildren().addAll(filesButton,playButton,pauseButton,backButton,forwardButton);
+        mediaPlayer.currentTimeProperty().addListener((Observable ov) -> {
+            currentTime = mediaPlayer.getCurrentTime();
+            updateValues(currentTime);
+        });
+
+        mediaPlayer.setOnReady(() -> {
+        duration = mediaPlayer.getMedia().getDuration();
+            currentTime = mediaPlayer.getCurrentTime();
+            updateValues(currentTime);
+        });
+        timeSlider = new Slider();
+        HBox.setHgrow(timeSlider,Priority.ALWAYS);
+        timeSlider.setMinWidth(50);
+        timeSlider.setMaxWidth(5*Double.SIZE);
+        
+        timeSlider.valueProperty().addListener(new InvalidationListener() {
+        public void invalidated(Observable ov) {
+        if (timeSlider.isValueChanging()) {
+                System.out.println(timeSlider.getValue());
+                mediaPlayer.seek(mediaPlayer.getCurrentTime().multiply(1.05));
+                currentTime = mediaPlayer.getCurrentTime().multiply(1.05);
+            }
+        }
+        });
+        
+        toolBar.getChildren().addAll(filesButton,startButton,backButton,playButton,pauseButton,forwardButton,endButton,time,timeSlider,volumeLabel,volumeSlider);
+        
         return toolBar;
     }
+    
+    Duration currentTime;
+    protected void updateValues(Duration currentTime) {
+        if (time != null) {
+        runLater(() -> {
+        //currentTime = mediaPlayer.getCurrentTime();
+        time.setText(formatTime(currentTime, duration));
+        
+
+    });
+    }
+    }
+    
+    private static String formatTime(Duration elapsed, Duration duration) {
+    int intElapsed = (int) floor(elapsed.toSeconds());
+    int elapsedHours = intElapsed / (60 * 60);
+    if (elapsedHours > 0) {
+    intElapsed -= elapsedHours * 60 * 60;
+    }
+    int elapsedMinutes = intElapsed / 60;
+    int elapsedSeconds = intElapsed - elapsedHours * 60 * 60
+    - elapsedMinutes * 60;
+
+    if (duration.greaterThan(Duration.ZERO)) {
+    int intDuration = (int) floor(duration.toSeconds());
+    int durationHours = intDuration / (60 * 60);
+    if (durationHours > 0) {
+    intDuration -= durationHours * 60 * 60;
+    }
+    int durationMinutes = intDuration / 60;
+    int durationSeconds = intDuration - durationHours * 60 * 60
+    - durationMinutes * 60;
+    if (durationHours > 0) {
+    return format("%d:%02d:%02d/%d:%02d:%02d",
+    elapsedHours, elapsedMinutes, elapsedSeconds,
+    durationHours, durationMinutes, durationSeconds);
+    } else {
+    return format("%02d:%02d/%02d:%02d",
+    elapsedMinutes, elapsedSeconds, durationMinutes,
+    durationSeconds);
+    }
+    } else {
+    if (elapsedHours > 0) {
+    return format("%d:%02d:%02d", elapsedHours,
+    elapsedMinutes, elapsedSeconds);
+    } else {
+    return format("%02d:%02d", elapsedMinutes,
+    elapsedSeconds);
+    }
+    }
+    }
+   
     /**
      * @param args the command line arguments
      */
