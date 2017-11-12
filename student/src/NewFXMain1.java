@@ -75,10 +75,11 @@ public class NewFXMain1 extends Application implements MouseListener {
         primaryStage.show();
     }
     Button playButton,pauseButton,forwardButton,backButton,filesButton,startButton,endButton;
-    Slider volumeSlider,timeSlider;
+    Slider volumeSlider,timeSlider,slider;
     Label volumeLabel;
     Label time;
     Duration duration;
+    //Double time2 = mediaPlayer.getTotalDuration().toSeconds();
     private HBox addToolBar() throws FileNotFoundException {
         HBox toolBar = new HBox();
         //toolBar.setPadding(new Insets(10,10,10,10));
@@ -171,8 +172,7 @@ public class NewFXMain1 extends Application implements MouseListener {
         volumeSlider.valueProperty().addListener(new InvalidationListener() {
         public void invalidated(Observable ov) {
         if (volumeSlider.isValueChanging()) {
-                mediaPlayer.setVolume(volumeSlider.getValue() / 100.0);
-                
+                mediaPlayer.setVolume(volumeSlider.getValue() / 100.0);  
             }
         }
         });
@@ -193,18 +193,28 @@ public class NewFXMain1 extends Application implements MouseListener {
         timeSlider = new Slider();
         HBox.setHgrow(timeSlider,Priority.ALWAYS);
         timeSlider.setMinWidth(50);
-        timeSlider.setMaxWidth(5*Double.SIZE);
+        timeSlider.setMaxWidth(8*Double.SIZE);
         
         timeSlider.valueProperty().addListener(new InvalidationListener() {
         public void invalidated(Observable ov) {
         if (timeSlider.isValueChanging()) {
                 System.out.println(timeSlider.getValue());
-                mediaPlayer.seek(mediaPlayer.getCurrentTime().multiply(1.05));
-                currentTime = mediaPlayer.getCurrentTime().multiply(1.05);
+                mediaPlayer.seek(Duration.seconds(timeSlider.getValue()));
+                currentTime = Duration.seconds(timeSlider.getValue());
             }
         }
         });
         
+        /*timeSlider.setOnMouseClicked((MouseEvent mouseEvent) -> {
+            mediaPlayer.seek(Duration.seconds(slider.getValue()));
+        });*/
+        /*slider = new Slider();
+        mediaPlayer.currentTimeProperty().addListener((ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) -> {
+            slider.setValue(newValue.toSeconds());
+        });
+        slider.setOnMouseClicked((MouseEvent mouseEvent) -> {
+            mediaPlayer.seek(Duration.seconds(slider.getValue()));
+        });*/
         toolBar.getChildren().addAll(filesButton,startButton,backButton,playButton,pauseButton,forwardButton,endButton,time,timeSlider,volumeLabel,volumeSlider);
         
         return toolBar;
@@ -215,8 +225,7 @@ public class NewFXMain1 extends Application implements MouseListener {
         if (time != null) {
         runLater(() -> {
         //currentTime = mediaPlayer.getCurrentTime();
-        time.setText(formatTime(currentTime, duration));
-        
+        time.setText(formatTime(currentTime, duration));  
 
     });
     }
