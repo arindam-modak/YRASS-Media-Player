@@ -42,7 +42,8 @@ public class NewFXMain1 extends Application implements MouseListener {
     
     MediaPlayer mediaPlayer;
     MediaView mediaView;
-    Media media = new Media(new File("C:\\Users\\Shiv\\Videos\\Baarish - Half Girlfriend - Arjun K & Shraddha K - Ash King & Shashaa Tirupati - Tanishk Bagchi(1).mp4").toURI().toString());
+    int toolbarFlag=0;
+    Media media = new Media(new File("C:\\Users\\sk\\Desktop\\Movies\\The Pursuit of Happyness (2006)-Hindi.mp4").toURI().toString());
     @Override
     public void start(Stage primaryStage) throws FileNotFoundException {
 
@@ -54,8 +55,8 @@ public class NewFXMain1 extends Application implements MouseListener {
         mediaView = new MediaView(mediaPlayer);
 
         BorderPane borderPane = new BorderPane();
-        borderPane.setBottom(mediaView);
-        borderPane.setCenter(addToolBar());
+        borderPane.setCenter(mediaView);
+        borderPane.setBottom(addToolBar());
 
         borderPane.setStyle("-fx-background-color: Black");
 
@@ -77,8 +78,11 @@ public class NewFXMain1 extends Application implements MouseListener {
         //toolBar.setPadding(new Insets(10,10,10,10));
         toolBar.setAlignment(Pos.TOP_CENTER);
         toolBar.alignmentProperty().isBound();
-        toolBar.setSpacing(5);
-        toolBar.setStyle("-fx-background-color: white");
+        toolBar.setSpacing(7);
+        if(toolbarFlag%2==0)
+            toolBar.setStyle("-fx-background-color: white");
+        else
+            toolBar.setStyle("-fx-background-color: black");
         //File imageFile = new File("C:\\Users\\Shiv\\Documents\\NetBeansProjects\\student\\Play.png");
         //File pic=new File(this.getClass().getResource("C:\\Users\\Shiv\\Documents\\NetBeansProjects\\student\\Play.png").getFile());
         //FileInputStream fis=new FileInputStream(pic);
@@ -94,11 +98,21 @@ public class NewFXMain1 extends Application implements MouseListener {
         //pauseButton.setStyle("-fx-background-color: Orange");
 
         playButton.setOnAction((ActionEvent e) -> {
-            //playButton.setStyle("-fx-background-color: Blue");   
+            //playButton.setStyle("-fx-background-color: Blue");
+            toolbarFlag++;
             mediaPlayer.play();
+            if(toolbarFlag%2==0)
+                toolBar.setStyle("-fx-background-color: white");
+            else
+                toolBar.setStyle("-fx-background-color: black");
         });
         pauseButton.setOnAction((ActionEvent e) -> {
+            toolbarFlag++;
             mediaPlayer.pause();
+            if(toolbarFlag%2==0)
+                toolBar.setStyle("-fx-background-color: white");
+            else
+                toolBar.setStyle("-fx-background-color: black");
         });
         
         backButton = new Button();
@@ -114,13 +128,24 @@ public class NewFXMain1 extends Application implements MouseListener {
         //pauseButton.setStyle("-fx-background-color: Orange");
         
         backButton.setOnAction((ActionEvent e) -> {
+            toolbarFlag++;
             mediaPlayer.seek(mediaPlayer.getCurrentTime().divide(1.2));
+            if(toolbarFlag%2==0)
+                toolBar.setStyle("-fx-background-color: white");
+            else
+                toolBar.setStyle("-fx-background-color: black");
         });
         forwardButton.setOnAction((ActionEvent e) -> {
+            toolbarFlag++;
             mediaPlayer.seek(mediaPlayer.getCurrentTime().multiply(1.2));
+            if(toolbarFlag%2==0)
+                toolBar.setStyle("-fx-background-color: white");
+            else
+                toolBar.setStyle("-fx-background-color: black");
         });
         
         filesButton.setOnAction((ActionEvent e) -> {
+            toolbarFlag++;
             FileChooser fc = new FileChooser();
             fc.getExtensionFilters().add(new ExtensionFilter("*.flv", "*.mp4", "*.mpeg"));
             File file = fc.showOpenDialog(null);
@@ -131,6 +156,10 @@ public class NewFXMain1 extends Application implements MouseListener {
             mediaPlayer = new MediaPlayer(media);
             mediaPlayer.setAutoPlay(true);
             mediaView.setMediaPlayer(mediaPlayer);
+            if(toolbarFlag%2==0)
+                toolBar.setStyle("-fx-background-color: white");
+            else
+                toolBar.setStyle("-fx-background-color: black");
         });
         
         /*playButton.addEventHandler(MouseEvent.MOUSE_ENTERED, (MouseEvent e) -> {
