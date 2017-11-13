@@ -79,7 +79,7 @@ public class NewFXMain1 extends Application implements MouseListener {
             try {
                 int flag2=1;
                 fc = new FileChooser();
-                fc.getExtensionFilters().add(new ExtensionFilter("*.flv", "*.mp4", "*.mpeg","*.mp3"));
+                fc.getExtensionFilters().add(new ExtensionFilter("*.flv", "*.mp4", "*.mpeg","*.mp3","*.mkv"));
                 File file = fc.showOpenDialog(null);
                 String path = file.getAbsolutePath();
                 path = path.replace("\\", "/");
@@ -125,6 +125,7 @@ public class NewFXMain1 extends Application implements MouseListener {
             "    -fx-effect: dropshadow(three-pass-box, black, 30, 0.5, 0, 0);");
         borderPane.setCenter(enter);
         Scene scene = new Scene(borderPane, 1200, 700);
+        borderPane.setMinSize(400, 300);
         img.setEffect(dropshadow);
         primaryStage.setTitle("Buzzaado Player");
         primaryStage.setScene(scene);
@@ -146,35 +147,35 @@ public class NewFXMain1 extends Application implements MouseListener {
         toolBar.setAlignment(Pos.BOTTOM_LEFT);
         toolBar.alignmentProperty().isBound();
         toolBar.setSpacing(5);
-        toolBar.setStyle("-fx-background-color: white");
+        toolBar.setStyle("-fx-background-color: #80ced6");
         playButton = new Button();
         playButton.setMaxSize(32,32);
         pauseButton = new Button();
         pauseButton.setMaxSize(32,32);
         startButton=new Button();
         startButton.setMaxSize(32,32);
-        startButton.setStyle("-fx-graphic: url('if_Replay.png')");
+        startButton.setStyle("-fx-graphic: url('if_Replay.png'); \n" + "-fx-background-color: #80ced6");
         backButton = new Button();
         backButton.setMaxSize(32,32);
         forwardButton = new Button();
         forwardButton.setMaxSize(32,32);
         filesButton = new Button();
-        pauseButton.setStyle("-fx-graphic: url('if_PauseNormalRed_22967.png')");
+        pauseButton.setStyle("-fx-graphic: url('if_Pause_2001889.png'); \n" + "-fx-background-color: #80ced6");
         pauseButton.setMaxSize(32,32);
-        playButton.setStyle("-fx-graphic: url('if_Play1Pressed_22932.png')");
+        playButton.setStyle("-fx-graphic: url('if_Play_2001879.png'); \n" + "-fx-background-color: #80ced6");
         playButton.setMaxSize(32,32);
-        backButton.setStyle("-fx-graphic: url('if_Rewind_2001873.png')");
+        backButton.setStyle("-fx-graphic: url('if_Rewind_2001873.png'); \n" + "-fx-background-color: #80ced6");
         backButton.setMaxSize(32,32);
-        forwardButton.setStyle("-fx-graphic: url('if_StepForwardDisabled_22933.png')");
+        forwardButton.setStyle("-fx-graphic: url('if_Fast_Forward_2001867.png'); \n" + "-fx-background-color: #80ced6");
         filesButton.setMaxSize(32,32);
-        filesButton.setStyle("-fx-graphic: url('if_open-file_85334.png')");
+        filesButton.setStyle("-fx-graphic: url('if_open-file_85334.png'); \n" + "-fx-background-color: #80ced6");
         volbtn=new Button();
         volbtn.setMaxSize(32,32);
-        volbtn.setStyle("-fx-graphic: url('if_Volume_Max_2001874.png')");
+        volbtn.setStyle("-fx-graphic: url('if_Volume_Max_2001874.png'); \n" + "-fx-background-color: #80ced6");
         MediaProp=new Button();
         MediaProp.setTooltip(new Tooltip("Details"));
         MediaProp.setMaxSize(32,32);
-        MediaProp.setStyle("-fx-graphic: url('if_stock_view-details_24335.png')");
+        MediaProp.setStyle("-fx-graphic: url('if_stock_view-details_24335.png'); \n" + "-fx-background-color: #80ced6");
         
         playButton.setOnAction((ActionEvent e) -> {
            mediaPlayer.play();
@@ -201,7 +202,7 @@ public class NewFXMain1 extends Application implements MouseListener {
                 flag++;
                 if(flag%2==1)
                 {
-                    volbtn.setStyle("-fx-graphic: url('if_Volume_Mute_2001875.png')");
+                    volbtn.setStyle("-fx-graphic: url('if_Volume_Mute_2001875.png'); \n" + "-fx-background-color: #80ced6");
                     prev=volumeSlider.getValue();
                     volbtn.setTooltip(new Tooltip("Mute"));
                     mediaPlayer.setVolume(0);
@@ -210,7 +211,7 @@ public class NewFXMain1 extends Application implements MouseListener {
                 }
                 else
                 {
-                    volbtn.setStyle("-fx-graphic: url('if_Volume_Max_2001874.png')");
+                    volbtn.setStyle("-fx-graphic: url('if_Volume_Max_2001874.png'); \n" + "-fx-background-color: #80ced6");
                     volbtn.setTooltip(new Tooltip("Volume"));
                     mediaPlayer.setVolume(prev/100.0);
                     volumeSlider.setValue(prev);
@@ -221,7 +222,7 @@ public class NewFXMain1 extends Application implements MouseListener {
                try {
                 int flag2=1;
                 fc = new FileChooser();
-                fc.getExtensionFilters().add(new ExtensionFilter("*.flv", "*.mp4", "*.mpeg","*.mp3"));
+                fc.getExtensionFilters().add(new ExtensionFilter("*.flv", "*.mp4", "*.mpeg","*.mp3","*.mkv"));
                 File file = fc.showOpenDialog(null);
                 String path = file.getAbsolutePath();
                 path = path.replace("\\", "/");
@@ -280,12 +281,12 @@ public class NewFXMain1 extends Application implements MouseListener {
             }
             if(volumeSlider.getValue()==0)
             {
-                volbtn.setStyle("-fx-graphic: url('if_Volume_Mute_2001875.png')");
+                volbtn.setStyle("-fx-graphic: url('if_Volume_Mute_2001875.png'); \n" + "-fx-background-color: #80ced6");
                 volbtn.setTooltip(new Tooltip("Mute"));
             }
             else
             {
-                volbtn.setStyle("-fx-graphic: url('if_Volume_Max_2001874.png')");
+                volbtn.setStyle("-fx-graphic: url('if_Volume_Max_2001874.png'); \n" + "-fx-background-color: #80ced6");
                 volbtn.setTooltip(new Tooltip("Volume"));
             }
         });
@@ -370,6 +371,8 @@ public class NewFXMain1 extends Application implements MouseListener {
         speedButton=new Button();
         speedButton.setText("Speed:");
         speedButton.setMaxSize(70, 40);
+        speedButton.setStyle("-fx-background-color: #80ced6");
+        
         speedButton.setTooltip(new Tooltip("Default Speed"));
         speedButton.setOnAction((ActionEvent e)->{
             mediaPlayer.setRate(1);
