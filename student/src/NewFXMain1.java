@@ -1,13 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-import java.awt.Color;
-
 import javafx.scene.image.Image;
-import java.awt.Paint;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -22,16 +13,16 @@ import static javafx.application.Platform.runLater;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.media.Media;
@@ -39,17 +30,12 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
+import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-import javafx.stage.Screen;
 import javafx.util.Duration;
 import javax.swing.JOptionPane;
 
-/**
- *
- * @author Shiv
- */
 public class NewFXMain1 extends Application implements MouseListener {
     FileChooser fc;
     MediaPlayer mediaPlayer;
@@ -62,18 +48,33 @@ public class NewFXMain1 extends Application implements MouseListener {
     String fileName="";
     @Override
     public void start(Stage primaryStage) throws FileNotFoundException {
-
-    //The location of your file
-        //Media media = new Media(new File("C:\\Users\\Shiv\\Videos\\Baarish - Half Girlfriend - Arjun K & Shraddha K - Ash King & Shashaa Tirupati - Tanishk Bagchi(1).mp4").toURI().toString());
+        primaryStage.getIcons().add(new Image("media_player_icon_by_xylomon.png"));
         ImageView img=new ImageView();
-        image = new Image("Audio-peak-indicator.png");
+        image = new Image("572703.png");
         img.setImage(image);
         borderPane = new BorderPane();
         
         dropshadow = new DropShadow();
         dropshadow.setOffsetY(5.0);
         dropshadow.setOffsetX(5.0);
-        enter.setText("OPEN (whatever you want to do man!!!)");
+        enter.setScaleY(1.0);
+        enter.setMinHeight(100);
+        enter.setMaxHeight(100);
+        enter.setPrefHeight(100);
+        enter.setStyle(
+            "-fx-background-radius: 10em; " +
+            "-fx-background-repeat: stretch;   \n" +
+            "-fx-background-size: 110 110;\n" +
+            "-fx-background-position: center center;\n" +
+            "-fx-min-width: 100px; " +
+            "-fx-min-height: 100px; " +
+            "-fx-max-width: 100px; " +
+            "-fx-max-height: 100px; " +
+            "-fx-background-image: url('opened_folder1600.png');" +
+            "-fx-background-insets: 0px; " +
+            "-fx-padding: 0px;"
+        );
+        enter.setText("");
         enter.setOnAction((ActionEvent e) -> {
             try {
                 int flag2=1;
@@ -98,8 +99,7 @@ public class NewFXMain1 extends Application implements MouseListener {
                     borderPane.setCenter(img2);
                 }
                 media = new Media(new File(path).toURI().toString());
-                
-//mediaPlayer.stop();
+                //mediaPlayer.stop();
                 mediaPlayer = new MediaPlayer(media);
                 mediaPlayer.setAutoPlay(true);
                 if(flag2==1){
@@ -118,15 +118,20 @@ public class NewFXMain1 extends Application implements MouseListener {
                 Logger.getLogger(NewFXMain1.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
+        borderPane.setStyle("-fx-background-image: url('573012.png');\n" +
+            "    -fx-background-repeat: stretch;   \n" +
+            "    -fx-background-size: 1400 800;\n" +
+            "    -fx-background-position: center center;\n" +
+            "    -fx-effect: dropshadow(three-pass-box, black, 30, 0.5, 0, 0);");
         borderPane.setCenter(enter);
-        Scene scene = new Scene(borderPane, 1000, 700);
+        Scene scene = new Scene(borderPane, 1200, 700);
         img.setEffect(dropshadow);
-        primaryStage.setTitle("Media Player!");
+        primaryStage.setTitle("Buzzaado Player");
         primaryStage.setScene(scene);
         primaryStage.show();
      
     }
-    Button playButton,pauseButton,forwardButton,backButton,filesButton,startButton,endButton,MediaProp;
+    Button playButton,pauseButton,forwardButton,backButton,filesButton,startButton,endButton,MediaProp,speedButton;
     Slider volumeSlider,timeSlider,slider,speedSlider;
     Button volbtn;
     Label time,speed;
@@ -141,15 +146,7 @@ public class NewFXMain1 extends Application implements MouseListener {
         toolBar.setAlignment(Pos.BOTTOM_LEFT);
         toolBar.alignmentProperty().isBound();
         toolBar.setSpacing(5);
-        toolBar.setStyle("-fx-background-color: Cyan");
-        
-        //File imageFile = new File("C:\\Users\\Shiv\\Documents\\NetBeansProjects\\student\\Play.png");
-        //File pic=new File(this.getClass().getResource("C:\\Users\\Shiv\\Documents\\NetBeansProjects\\student\\Play.png").getFile());
-        //FileInputStream fis=new FileInputStream(pic);
-        //Image playimage = new Image(fis);
-        //Image playimage = new Image(new FileInputStream("C:\\Users\\Shiv\\Documents\\NetBeansProjects\\student\\Play.png"));
-        
-        //Image playButtonImage = new Image(getClass().getResourceAsStream("Play.png")) {};
+        toolBar.setStyle("-fx-background-color: white");
         playButton = new Button();
         playButton.setMaxSize(32,32);
         pauseButton = new Button();
@@ -190,7 +187,7 @@ public class NewFXMain1 extends Application implements MouseListener {
             mediaPlayer.seek(Duration.ZERO);
         });
         
-        
+       
         backButton.setOnAction((ActionEvent e) -> {
             mediaPlayer.seek(mediaPlayer.getCurrentTime().divide(1.2));
         });
@@ -270,19 +267,17 @@ public class NewFXMain1 extends Application implements MouseListener {
         volumeSlider = new Slider();        
         volumeSlider.setPrefWidth(120);
         volumeSlider.setMaxWidth(300);
-        volumeSlider.setMinWidth(50);
+        volumeSlider.setMinWidth(10);
         volumeSlider.setValue(50);
         mediaPlayer.setVolume(volumeSlider.getValue());
-        volumeSlider.valueProperty().addListener(new InvalidationListener() {
-        public void invalidated(Observable ov) {
-            
-        if (volumeSlider.isValueChanging()) {
+        volumeSlider.valueProperty().addListener((Observable ov) -> {
+            if (volumeSlider.isValueChanging()) {
                 mediaPlayer.setVolume(volumeSlider.getValue() / 100.0);  
             }
-        if(volumeSlider.isPressed())
-        {
-            mediaPlayer.setVolume(volumeSlider.getValue()/100.0);
-        }
+            if(volumeSlider.isPressed())
+            {
+                mediaPlayer.setVolume(volumeSlider.getValue()/100.0);
+            }
             if(volumeSlider.getValue()==0)
             {
                 volbtn.setStyle("-fx-graphic: url('if_Volume_Mute_2001875.png')");
@@ -293,7 +288,6 @@ public class NewFXMain1 extends Application implements MouseListener {
                 volbtn.setStyle("-fx-graphic: url('if_Volume_Max_2001874.png')");
                 volbtn.setTooltip(new Tooltip("Volume"));
             }
-        }
         });
         time = new Label();
         time.setPrefWidth(80);
@@ -310,16 +304,15 @@ public class NewFXMain1 extends Application implements MouseListener {
         });
         timeSlider = new Slider();
         HBox.setHgrow(timeSlider,Priority.ALWAYS);
-        timeSlider.setMinWidth(50);
+        timeSlider.setMinWidth(10);
         timeSlider.setMaxWidth(8*Double.SIZE);
         mediaPlayer.currentTimeProperty().addListener((obs, oldTime, newTime) -> {
         if (!timeSlider.isValueChanging()) {
             timeSlider.setValue(newTime.toSeconds());
         }
         });
-        timeSlider.valueProperty().addListener(new InvalidationListener() {
-        public void invalidated(Observable ov) {
-        if (timeSlider.isValueChanging()) {
+        timeSlider.valueProperty().addListener((Observable ov) -> {
+            if (timeSlider.isValueChanging()) {
                 //System.out.println(timeSlider.getValue());
                 mediaPlayer.seek(Duration.seconds(timeSlider.getValue()));
                 currentTime = Duration.seconds(timeSlider.getValue());
@@ -329,7 +322,6 @@ public class NewFXMain1 extends Application implements MouseListener {
                 mediaPlayer.seek(Duration.seconds(timeSlider.getValue()));
                 currentTime = Duration.seconds(timeSlider.getValue());
             }
-        }
         });
         speedSlider = new Slider();
         HBox.setHgrow(speedSlider, Priority.ALWAYS);
@@ -337,33 +329,30 @@ public class NewFXMain1 extends Application implements MouseListener {
         speedSlider.setMaxWidth(100);
         speedSlider.setPrefWidth(70);
         speedSlider.setValue(50);
-        speedSlider.valueProperty().addListener(new InvalidationListener() 
-        {
-            public void invalidated(Observable ov) {
-                if (speedSlider.isValueChanging() || speedSlider.isPressed()) {
-                    double rate = speedSlider.getValue()/10;
-                    if(rate<1)
-                        rate = 0.5;
-                    else if(rate < 2)
-                        rate = 0.6;
-                    else if(rate < 3)
-                        rate = 0.7;
-                    else if(rate < 4)
-                        rate = 0.8;
-                    else if(rate < 5)
-                        rate = 0.9;
-                    else if(rate < 6)
-                        rate = 1;
-                    else if(rate < 7)
-                        rate = 1.1;
-                    else if(rate < 8)
-                        rate = 1.2;
-                    else if(rate < 9)
-                        rate = 1.3;
-                    else
-                        rate = 1.4;
-                    mediaPlayer.setRate(rate);
-                 }
+        speedSlider.valueProperty().addListener((Observable ov) -> {
+            if (speedSlider.isValueChanging() || speedSlider.isPressed()) {
+                double rate = speedSlider.getValue()/10;
+                if(rate<1)
+                    rate = 0.5;
+                else if(rate < 2)
+                    rate = 0.6;
+                else if(rate < 3)
+                    rate = 0.7;
+                else if(rate < 4)
+                    rate = 0.8;
+                else if(rate < 5)
+                    rate = 0.9;
+                else if(rate < 6)
+                    rate = 1;
+                else if(rate < 7)
+                    rate = 1.1;
+                else if(rate < 8)
+                    rate = 1.2;
+                else if(rate < 9)
+                    rate = 1.3;
+                else
+                    rate = 1.4;
+                mediaPlayer.setRate(rate);
             }
         });
         speedSlider.setMaxHeight(100);
@@ -378,7 +367,15 @@ public class NewFXMain1 extends Application implements MouseListener {
         pauseButton.setTooltip(new Tooltip("Pause"));
         forwardButton.setTooltip(new Tooltip("Forward"));
         volbtn.setTooltip(new Tooltip("Volume"));
-      toolBar.getChildren().addAll(filesButton,speed,speedSlider,startButton,backButton,playButton,pauseButton,forwardButton,time,timeSlider,volbtn,volumeSlider,MediaProp);
+        speedButton=new Button();
+        speedButton.setText("Speed:");
+        speedButton.setMaxSize(70, 40);
+        speedButton.setTooltip(new Tooltip("Default Speed"));
+        speedButton.setOnAction((ActionEvent e)->{
+            mediaPlayer.setRate(1);
+            speedSlider.setValue(50.0);
+        });
+      toolBar.getChildren().addAll(filesButton,speedButton,speedSlider,startButton,backButton,playButton,pauseButton,forwardButton,time,timeSlider,volbtn,volumeSlider,MediaProp);
         return toolBar;
     }
     
