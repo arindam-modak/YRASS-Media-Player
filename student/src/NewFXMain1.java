@@ -1,3 +1,4 @@
+import java.awt.Toolkit;
 import javafx.scene.image.Image;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -15,12 +16,15 @@ import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
+import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Light.Point;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
@@ -46,6 +50,10 @@ public class NewFXMain1 extends Application implements MouseListener {
     BorderPane borderPane;
     Button enter = new Button();
     String fileName="";
+    Toolkit tk = Toolkit.getDefaultToolkit();
+    Image cur = new Image("cursor.png");
+    //Point point = new Point(0, 0);
+    
     @Override
     public void start(Stage primaryStage) throws FileNotFoundException {
         primaryStage.getIcons().add(new Image("media_player_icon_by_xylomon.png"));
@@ -64,7 +72,7 @@ public class NewFXMain1 extends Application implements MouseListener {
         enter.setStyle(
             "-fx-background-radius: 10em; " +
             "-fx-background-repeat: stretch;   \n" +
-            "-fx-background-size: 110 110;\n" +
+            "-fx-background-size: 100 100;\n" +
             "-fx-background-position: center center;\n" +
             "-fx-min-width: 100px; " +
             "-fx-min-height: 100px; " +
@@ -74,6 +82,39 @@ public class NewFXMain1 extends Application implements MouseListener {
             "-fx-background-insets: 0px; " +
             "-fx-padding: 0px;"
         );
+        enter.setOnMouseEntered(e -> {
+           enter.setStyle(
+            "-fx-background-radius: 10em; " +
+            "-fx-background-repeat: stretch;   \n" +
+            "-fx-background-size: 100 100;\n" +
+            "-fx-background-position: center center;\n" +
+            "-fx-min-width: 100px; " +
+            "-fx-min-height: 100px; " +
+            "-fx-max-width: 100px; " +
+            "-fx-max-height: 100px; " +
+            "-fx-background-image: url('opened_folder1600.png');" +
+            "-fx-background-color: #80ced6;" +
+            "-fx-background-insets: 0px; " +
+            "-fx-padding: 0px;"
+          );
+        });
+        enter.setOnMouseExited(e -> {
+           enter.setStyle(
+            "-fx-background-radius: 10em; " +
+            "-fx-background-repeat: stretch;   \n" +
+            "-fx-background-size: 100 100;\n" +
+            "-fx-background-position: center center;\n" +
+            "-fx-min-width: 100px; " +
+            "-fx-min-height: 100px; " +
+            "-fx-max-width: 100px; " +
+            "-fx-max-height: 100px; " +
+            "-fx-background-image: url('opened_folder1600.png');" +
+            "-fx-background-color: white;" +
+            "-fx-background-insets: 0px; " +
+            "-fx-padding: 0px;"
+          );
+        });
+                
         enter.setText("");
         enter.setOnAction((ActionEvent e) -> {
             try {
@@ -129,6 +170,9 @@ public class NewFXMain1 extends Application implements MouseListener {
         img.setEffect(dropshadow);
         primaryStage.setTitle("Buzzaado Player");
         primaryStage.setScene(scene);
+        primaryStage.getScene().setCursor(new ImageCursor(cur,
+                                cur.getWidth(),
+                                cur.getHeight()));
         primaryStage.show();
      
     }
@@ -263,7 +307,7 @@ public class NewFXMain1 extends Application implements MouseListener {
           
         });
         
-       
+        
         speed=new Label("Speed: ");
         volumeSlider = new Slider();        
         volumeSlider.setPrefWidth(120);
