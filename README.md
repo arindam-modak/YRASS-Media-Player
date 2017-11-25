@@ -1,3 +1,3 @@
 # OOMS-Project
 
-![MediaPlayerUI](student/src/ui.png)
+![MediaPlayerUI](student/src/ui.PNG)
