@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.Frame;
 import java.awt.Paint;
 import java.awt.Toolkit;
 import javafx.scene.image.Image;
@@ -21,6 +22,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
@@ -28,6 +30,12 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Light.Point;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -56,6 +64,8 @@ public class NewFXMain1 extends Application implements MouseListener {
     String fileName="";
     Toolkit tk = Toolkit.getDefaultToolkit();
     Image cur = new Image("cursor.png");
+    int playButtonCount = 0;
+    int fullScreenClick=0;
     //Point point = new Point(0, 0);
     
     @Override
@@ -124,40 +134,51 @@ public class NewFXMain1 extends Application implements MouseListener {
             try {
                 int flag2=1;
                 fc = new FileChooser();
-                fc.getExtensionFilters().add(new ExtensionFilter("*.flv", "*.mp4", "*.mpeg","*.mp3","*.mkv"));
+                //fc.getExtensionFilters().add(new ExtensionFilter("*.flv", "*.mp4", "*.mpeg","*.mp3","*.mkv","*.jpeg","*.txt"));
                 File file = fc.showOpenDialog(null);
                 String path = file.getAbsolutePath();
                 path = path.replace("\\", "/");
                 String std=Long.toString(file.getUsableSpace()/(1024*1024*1024))+"MB";
                 Date d = new Date(file.lastModified());
                 fileName = "Name: " + (String)file.getName() + "\nPath: " + path + "\nSize: " + std+"\n Last Modified: "+d.toString();
-        
-                if(file.getName().substring(file.getName().length()-3,file.getName().length()).compareTo("mp3")==0)
+                if(file.getName().substring(file.getName().length()-3,file.getName().length()).compareTo("mp3")!=0 && file.getName().substring(file.getName().length()-3,file.getName().length()).compareTo("flv")!=0 && file.getName().substring(file.getName().length()-3,file.getName().length()).compareTo("mp4")!=0 && file.getName().substring(file.getName().length()-4,file.getName().length()).compareTo("mpeg")!=0)
                 {
-                    flag2=0;
-                    ImageView img2=new ImageView();
-                    img2.setImage(image);
-                    img2.setFitWidth(1200);
-                    img2.setFitHeight(600);
-                    img2.autosize();
-                    img2.setEffect(dropshadow);
-                    borderPane.setCenter(img2);
-                }
-                media = new Media(new File(path).toURI().toString());
-                //mediaPlayer.stop();
-                mediaPlayer = new MediaPlayer(media);
-                mediaPlayer.setAutoPlay(true);
-                if(flag2==1){
+                    Alert err = new Alert(Alert.AlertType.ERROR);
+                    err.setTitle("ERROR!");
+                    err.setHeaderText("Not Supported");
+                    err.setContentText("Invalid File Type. Please choose again among the following file types : mp3,mp4,mpeg,flv");
+                    err.showAndWait();
                     
-                    mediaView = new MediaView(mediaPlayer);
-                    mediaView.setFitWidth(1200);
-                    mediaView.setFitHeight(600);
-                    mediaView.autosize();
-                    mediaView.setEffect(dropshadow);
-                    borderPane.setCenter(mediaView);
                 }
-                borderPane.setBottom(addToolBar());
-                borderPane.setStyle("-fx-background-color: Black");
+                else
+                    {
+                        if(file.getName().substring(file.getName().length()-3,file.getName().length()).compareTo("mp3")==0)
+                        {
+                            flag2=0;
+                            ImageView img2=new ImageView();
+                            img2.setImage(image);
+                            img2.setFitWidth(1200);
+                            img2.setFitHeight(600);
+                            img2.autosize();
+                            img2.setEffect(dropshadow);
+                            borderPane.setCenter(img2);
+                        }
+                        media = new Media(new File(path).toURI().toString());
+                        //mediaPlayer.stop();
+                        mediaPlayer = new MediaPlayer(media);
+                        mediaPlayer.setAutoPlay(true);
+                        if(flag2==1){
+
+                            mediaView = new MediaView(mediaPlayer);
+                            mediaView.setFitWidth(1200);
+                            mediaView.setFitHeight(600);
+                            mediaView.autosize();
+                            mediaView.setEffect(dropshadow);
+                            borderPane.setCenter(mediaView);
+                        }
+                        borderPane.setBottom(addToolBar());
+                        borderPane.setStyle("-fx-background-color: Black");
+                    }
                 
             } catch (Exception ex) {
                 Logger.getLogger(NewFXMain1.class.getName()).log(Level.SEVERE, null, ex);
@@ -178,7 +199,73 @@ public class NewFXMain1 extends Application implements MouseListener {
                                 0,
                                 0));
         primaryStage.show();
-     
+        
+        // ***************** volume scrolling ***************
+        scene.setOnScroll(new EventHandler<javafx.scene.input.ScrollEvent>() {
+            @Override
+            public void handle(ScrollEvent event) {
+                //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                double deltaY = event.getDeltaY();
+                double prev = volumeSlider.getValue();
+                volumeSlider.setValue((prev+deltaY/20.0));
+                mediaPlayer.setVolume((prev+deltaY/20.0));
+            }
+            
+        });
+        borderPane.setOnMouseClicked(new EventHandler<javafx.scene.input.MouseEvent>() { 
+            @Override
+            public void handle(javafx.scene.input.MouseEvent event) {
+                //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                if(event.getButton().equals(MouseButton.PRIMARY)){
+                    if(event.getClickCount() == 2){
+                        fullScreenClick++;
+                        if(fullScreenClick%2==1){
+                            primaryStage.setFullScreen(true);
+                            MediaProp.setVisible(false);
+                        }
+                        else{
+                            primaryStage.setFullScreen(false);
+                            MediaProp.setVisible(true);
+                        }
+                        mediaPlayer.play();
+                    }
+                    if(event.getClickCount() == 1)
+                    {
+                        playButtonCount++;
+                        if(playButtonCount%2==1){
+                            playButton.setStyle("-fx-graphic: url('if_Play_2001879.png'); \n" + "-fx-background-color: #80ced6");
+                            playButton.setTooltip(new Tooltip("Play"));
+                            mediaPlayer.pause();
+                        }
+                        else{
+                            playButton.setStyle("-fx-graphic: url('if_Pause_2001889.png'); \n" + "-fx-background-color: #80ced6");
+                            playButton.setTooltip(new Tooltip("Pause"));
+                            mediaPlayer.play();
+                        }
+                    }
+                }
+            
+            }   
+        });
+        scene.setOnKeyPressed(new EventHandler<KeyEvent>(){
+            public void handle(KeyEvent ke ){
+                if(ke.getCode()==KeyCode.ALT){
+                    playButtonCount++;
+                        if(playButtonCount%2==1){
+                            playButton.setStyle("-fx-graphic: url('if_Play_2001879.png'); \n" + "-fx-background-color: #80ced6");
+                            playButton.setTooltip(new Tooltip("Play"));
+                            mediaPlayer.pause();
+                        }
+                        else{
+                            playButton.setStyle("-fx-graphic: url('if_Pause_2001889.png'); \n" + "-fx-background-color: #80ced6");
+                            playButton.setTooltip(new Tooltip("Pause"));
+                            mediaPlayer.play();
+                        }
+                }
+            }
+
+        });
+        
     }
     Button playButton,pauseButton,forwardButton,backButton,filesButton,startButton,endButton,MediaProp,speedButton;
     Slider volumeSlider,timeSlider,slider,speedSlider;
@@ -198,8 +285,8 @@ public class NewFXMain1 extends Application implements MouseListener {
         toolBar.setStyle("-fx-background-color: #80ced6");
         playButton = new Button();
         playButton.setMaxSize(32,32);
-        pauseButton = new Button();
-        pauseButton.setMaxSize(32,32);
+        //pauseButton = new Button();
+        //pauseButton.setMaxSize(32,32);
         startButton=new Button();
         startButton.setMaxSize(32,32);
         startButton.setStyle("-fx-graphic: url('if_Replay.png'); \n" + "-fx-background-color: #80ced6");
@@ -208,9 +295,9 @@ public class NewFXMain1 extends Application implements MouseListener {
         forwardButton = new Button();
         forwardButton.setMaxSize(32,32);
         filesButton = new Button();
-        pauseButton.setStyle("-fx-graphic: url('if_Pause_2001889.png'); \n" + "-fx-background-color: #80ced6");
-        pauseButton.setMaxSize(32,32);
-        playButton.setStyle("-fx-graphic: url('if_Play_2001879.png'); \n" + "-fx-background-color: #80ced6");
+        //pauseButton.setStyle("-fx-graphic: url('if_Pause_2001889.png'); \n" + "-fx-background-color: #80ced6");
+        //pauseButton.setMaxSize(32,32);
+        playButton.setStyle("-fx-graphic: url('if_Pause_2001889.png'); \n" + "-fx-background-color: #80ced6");
         playButton.setMaxSize(32,32);
         backButton.setStyle("-fx-graphic: url('if_Rewind_2001873.png'); \n" + "-fx-background-color: #80ced6");
         backButton.setMaxSize(32,32);
@@ -329,8 +416,8 @@ public class NewFXMain1 extends Application implements MouseListener {
         filesButton.setTooltip(new Tooltip("Open New File"));
         startButton.setTooltip(new Tooltip("Replay"));
         backButton.setTooltip(new Tooltip("Rewind"));
-        playButton.setTooltip(new Tooltip("Play"));
-        pauseButton.setTooltip(new Tooltip("Pause"));
+        playButton.setTooltip(new Tooltip("Pause"));
+        //pauseButton.setTooltip(new Tooltip("Pause"));
         forwardButton.setTooltip(new Tooltip("Forward"));
         volbtn.setTooltip(new Tooltip("Volume"));
         speedButton=new Button();
@@ -351,12 +438,22 @@ public class NewFXMain1 extends Application implements MouseListener {
         vollabel.setMaxHeight(100);
         vollabel.setLabelFor(volumeSlider);
         vollabel.setText("Vol:" + Integer.toString((int) (volumeSlider.getValue())) + "%");
-        playButton.setOnAction((ActionEvent e) -> {
-           mediaPlayer.play();
+        playButton.setOnAction((ActionEvent e) -> {           
+           playButtonCount++;
+           if(playButtonCount%2==1){
+               playButton.setStyle("-fx-graphic: url('if_Play_2001879.png'); \n" + "-fx-background-color: #80ced6");
+               playButton.setTooltip(new Tooltip("Play"));
+               mediaPlayer.pause();
+           }
+           else{
+               playButton.setStyle("-fx-graphic: url('if_Pause_2001889.png'); \n" + "-fx-background-color: #80ced6");
+               playButton.setTooltip(new Tooltip("Pause"));
+               mediaPlayer.play();
+           }
         });
-        pauseButton.setOnAction((ActionEvent e) -> {
+        /*pauseButton.setOnAction((ActionEvent e) -> {
             mediaPlayer.pause();
-        });
+        });*/
         startButton.setOnAction((ActionEvent e)->{
         
             mediaPlayer.seek(Duration.ZERO);
@@ -369,9 +466,18 @@ public class NewFXMain1 extends Application implements MouseListener {
         forwardButton.setOnAction((ActionEvent e) -> {
             mediaPlayer.seek(mediaPlayer.getCurrentTime().multiply(1.2));
         });
+        
+        //*************************** Alert box ******************************
         MediaProp.setOnAction((ActionEvent e) -> {
-            JOptionPane.showMessageDialog(null,fileName,"Details", JOptionPane.PLAIN_MESSAGE);
+            Alert a = new Alert(Alert.AlertType.INFORMATION);
+                a.setHeaderText("Details");
+                a.setContentText(fileName);
+                a.setTitle("Properties");
+                a.showAndWait();
+                
         });
+        
+        
         volbtn.setOnAction((ActionEvent e) -> {
                 flag++;
                 if(flag%2==1)
@@ -396,9 +502,10 @@ public class NewFXMain1 extends Application implements MouseListener {
         });
         filesButton.setOnAction((ActionEvent e) -> {
                try {
+                   playButtonCount = 0;
                 int flag2=1;
                 fc = new FileChooser();
-                fc.getExtensionFilters().add(new ExtensionFilter("*.flv", "*.mp4", "*.mpeg","*.mp3","*.mkv"));
+                //fc.getExtensionFilters().add(new ExtensionFilter("*.flv", "*.mp4", "*.mpeg","*.mp3","*.mkv"));
                 File file = fc.showOpenDialog(null);
                 String path = file.getAbsolutePath();
                 path = path.replace("\\", "/");
@@ -406,33 +513,44 @@ public class NewFXMain1 extends Application implements MouseListener {
                 Date d = new Date(file.lastModified());
                 fileName = "Name: " + (String)file.getName() + "\nPath: " + path + "\nSize: " + std+"\n Last Modified: "+d.toString();
         
-                if(file.getName().substring(file.getName().length()-3,file.getName().length()).compareTo("mp3")==0)
+                if(file.getName().substring(file.getName().length()-3,file.getName().length()).compareTo("mp3")!=0 && file.getName().substring(file.getName().length()-3,file.getName().length()).compareTo("flv")!=0 && file.getName().substring(file.getName().length()-3,file.getName().length()).compareTo("mp4")!=0 && file.getName().substring(file.getName().length()-4,file.getName().length()).compareTo("mpeg")!=0)
                 {
-                    flag2=0;
-                    ImageView img2=new ImageView();
-                    img2.setImage(image);
-                    img2.setFitWidth(1200);
-                    img2.setFitHeight(600);
-                    img2.autosize();
-                    img2.setEffect(dropshadow);
-                    borderPane.setCenter(img2);
-                }
-                media = new Media(new File(path).toURI().toString());
-                
-                mediaPlayer.stop();
-                mediaPlayer = new MediaPlayer(media);
-                mediaPlayer.setAutoPlay(true);
-                if(flag2==1){
+                    Alert err = new Alert(Alert.AlertType.ERROR);
+                    err.setTitle("ERROR!");
+                    err.setHeaderText("Not Supported");
+                    err.setContentText("Invalid File Type. Please choose again among the following file types : mp3,mp4,mpeg,flv");
+                    err.showAndWait();
                     
-                    mediaView = new MediaView(mediaPlayer);
-                    mediaView.setFitWidth(1200);
-                    mediaView.setFitHeight(600);
-                    mediaView.autosize();
-                    mediaView.setEffect(dropshadow);
-                    borderPane.setCenter(mediaView);
                 }
-                borderPane.setBottom(addToolBar());
-                borderPane.setStyle("-fx-background-color: Black");
+                else
+                    {
+                        if(file.getName().substring(file.getName().length()-3,file.getName().length()).compareTo("mp3")==0)
+                        {
+                            flag2=0;
+                            ImageView img2=new ImageView();
+                            img2.setImage(image);
+                            img2.setFitWidth(1200);
+                            img2.setFitHeight(600);
+                            img2.autosize();
+                            img2.setEffect(dropshadow);
+                            borderPane.setCenter(img2);
+                        }
+                        media = new Media(new File(path).toURI().toString());
+                        mediaPlayer.stop();
+                        mediaPlayer = new MediaPlayer(media);
+                        mediaPlayer.setAutoPlay(true);
+                        if(flag2==1){
+
+                            mediaView = new MediaView(mediaPlayer);
+                            mediaView.setFitWidth(1200);
+                            mediaView.setFitHeight(600);
+                            mediaView.autosize();
+                            mediaView.setEffect(dropshadow);
+                            borderPane.setCenter(mediaView);
+                        }
+                        borderPane.setBottom(addToolBar());
+                        borderPane.setStyle("-fx-background-color: Black");
+                    }
             } catch (Exception ex) {
                 Logger.getLogger(NewFXMain1.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -441,7 +559,7 @@ public class NewFXMain1 extends Application implements MouseListener {
         
         
         
-      toolBar.getChildren().addAll(filesButton,speedButton,speedSlider,startButton,backButton,playButton,pauseButton,forwardButton,time,timeSlider,volbtn,volumeSlider,vollabel,MediaProp);
+      toolBar.getChildren().addAll(filesButton,speedButton,speedSlider,startButton,backButton,playButton,forwardButton,time,timeSlider,volbtn,volumeSlider,vollabel,MediaProp);
         return toolBar;
     }
     
@@ -530,4 +648,3 @@ public class NewFXMain1 extends Application implements MouseListener {
     }
     
 }
-
