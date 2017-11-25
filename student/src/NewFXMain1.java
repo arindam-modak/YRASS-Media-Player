@@ -65,7 +65,7 @@ public class NewFXMain1 extends Application implements MouseListener {
     Toolkit tk = Toolkit.getDefaultToolkit();
     Image cur = new Image("cursor.png");
     int playButtonCount = 0;
-    int fullScreenClick=0;
+    int fullScreenClick=1;
     //Point point = new Point(0, 0);
     
     @Override
@@ -96,6 +96,7 @@ public class NewFXMain1 extends Application implements MouseListener {
             "-fx-background-insets: 0px; " +
             "-fx-padding: 0px;"
         );
+        
         enter.setOnMouseEntered(e -> {
            enter.setStyle(
             "-fx-background-radius: 10em; " +
@@ -128,77 +129,31 @@ public class NewFXMain1 extends Application implements MouseListener {
             "-fx-padding: 0px;"
           );
         });
-                
+
+        // ************* Choose File ******************
         enter.setText("");
         enter.setOnAction((ActionEvent e) -> {
-            try {
-                int flag2=1;
-                fc = new FileChooser();
-                //fc.getExtensionFilters().add(new ExtensionFilter("*.flv", "*.mp4", "*.mpeg","*.mp3","*.mkv","*.jpeg","*.txt"));
-                File file = fc.showOpenDialog(null);
-                String path = file.getAbsolutePath();
-                path = path.replace("\\", "/");
-                String std=Long.toString(file.getUsableSpace()/(1024*1024*1024))+"MB";
-                Date d = new Date(file.lastModified());
-                fileName = "Name: " + (String)file.getName() + "\nPath: " + path + "\nSize: " + std+"\n Last Modified: "+d.toString();
-                if(file.getName().substring(file.getName().length()-3,file.getName().length()).compareTo("mp3")!=0 && file.getName().substring(file.getName().length()-3,file.getName().length()).compareTo("flv")!=0 && file.getName().substring(file.getName().length()-3,file.getName().length()).compareTo("mp4")!=0 && file.getName().substring(file.getName().length()-4,file.getName().length()).compareTo("mpeg")!=0)
-                {
-                    Alert err = new Alert(Alert.AlertType.ERROR);
-                    err.setTitle("ERROR!");
-                    err.setHeaderText("Not Supported");
-                    err.setContentText("Invalid File Type. Please choose again among the following file types : mp3,mp4,mpeg,flv");
-                    err.showAndWait();
-                    
-                }
-                else
-                    {
-                        if(file.getName().substring(file.getName().length()-3,file.getName().length()).compareTo("mp3")==0)
-                        {
-                            flag2=0;
-                            ImageView img2=new ImageView();
-                            img2.setImage(image);
-                            img2.setFitWidth(1200);
-                            img2.setFitHeight(600);
-                            img2.autosize();
-                            img2.setEffect(dropshadow);
-                            borderPane.setCenter(img2);
-                        }
-                        media = new Media(new File(path).toURI().toString());
-                        //mediaPlayer.stop();
-                        mediaPlayer = new MediaPlayer(media);
-                        mediaPlayer.setAutoPlay(true);
-                        if(flag2==1){
-
-                            mediaView = new MediaView(mediaPlayer);
-                            mediaView.setFitWidth(1200);
-                            mediaView.setFitHeight(600);
-                            mediaView.autosize();
-                            mediaView.setEffect(dropshadow);
-                            borderPane.setCenter(mediaView);
-                        }
-                        borderPane.setBottom(addToolBar());
-                        borderPane.setStyle("-fx-background-color: Black");
-                    }
-                
-            } catch (Exception ex) {
-                Logger.getLogger(NewFXMain1.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            chooseFile(0);
         });
+
         borderPane.setStyle("-fx-background-image: url('573012.png');\n" +
             "    -fx-background-repeat: stretch;   \n" +
             "    -fx-background-size: 1400 800;\n" +
             "    -fx-background-position: center center;\n" +
             "    -fx-effect: dropshadow(three-pass-box, black, 30, 0.5, 0, 0);");
         borderPane.setCenter(enter);
+        
         Scene scene = new Scene(borderPane, 1200, 700);
         borderPane.setMinSize(400, 300);
         img.setEffect(dropshadow);
+        primaryStage.setFullScreen(true);
         primaryStage.setTitle("Buzzaado Player");
         primaryStage.setScene(scene);
         primaryStage.getScene().setCursor(new ImageCursor(cur,
                                 0,
                                 0));
         primaryStage.show();
+        
         
         // ***************** volume scrolling ***************
         scene.setOnScroll(new EventHandler<javafx.scene.input.ScrollEvent>() {
@@ -220,12 +175,24 @@ public class NewFXMain1 extends Application implements MouseListener {
                     if(event.getClickCount() == 2){
                         fullScreenClick++;
                         if(fullScreenClick%2==1){
-                            primaryStage.setFullScreen(true);
-                            MediaProp.setVisible(false);
+                            try{
+                                primaryStage.setFullScreen(true);
+                                MediaProp.setVisible(false);
+                            }
+                            catch(Exception e)
+                            {
+                                
+                            }
                         }
                         else{
-                            primaryStage.setFullScreen(false);
-                            MediaProp.setVisible(true);
+                            try{
+                                primaryStage.setFullScreen(false);
+                                MediaProp.setVisible(true);
+                            }
+                            catch(Exception e)
+                            {
+                                
+                            }
                         }
                         mediaPlayer.play();
                     }
@@ -262,11 +229,14 @@ public class NewFXMain1 extends Application implements MouseListener {
                             mediaPlayer.play();
                         }
                 }
+                if(ke.getCode()==KeyCode.C){
+                    chooseFile(1);
+                }
             }
 
         });
-        
     }
+    
     Button playButton,pauseButton,forwardButton,backButton,filesButton,startButton,endButton,MediaProp,speedButton;
     Slider volumeSlider,timeSlider,slider,speedSlider;
     Button volbtn;
@@ -438,6 +408,18 @@ public class NewFXMain1 extends Application implements MouseListener {
         vollabel.setMaxHeight(100);
         vollabel.setLabelFor(volumeSlider);
         vollabel.setText("Vol:" + Integer.toString((int) (volumeSlider.getValue())) + "%");
+        playButton.setOnMouseEntered(e -> {
+           if(playButtonCount%2==0)
+            playButton.setStyle("-fx-graphic: url('if_Pause_2001889.png'); \n" + "-fx-background-color: #000777");
+           else
+            playButton.setStyle("-fx-graphic: url('if_Play_2001879.png'); \n" + "-fx-background-color: #000777");
+        });
+        playButton.setOnMouseExited(e -> {
+           if(playButtonCount%2==0)
+            playButton.setStyle("-fx-graphic: url('if_Pause_2001889.png'); \n" + "-fx-background-color: #80ced6");
+           else
+            playButton.setStyle("-fx-graphic: url('if_Play_2001879.png'); \n" + "-fx-background-color: #80ced6");
+        });
         playButton.setOnAction((ActionEvent e) -> {           
            playButtonCount++;
            if(playButtonCount%2==1){
@@ -451,6 +433,7 @@ public class NewFXMain1 extends Application implements MouseListener {
                mediaPlayer.play();
            }
         });
+        
         /*pauseButton.setOnAction((ActionEvent e) -> {
             mediaPlayer.pause();
         });*/
@@ -458,13 +441,31 @@ public class NewFXMain1 extends Application implements MouseListener {
         
             mediaPlayer.seek(Duration.ZERO);
         });
-        
+        startButton.setOnMouseEntered(e -> {
+           startButton.setStyle("-fx-graphic: url('if_Replay.png'); \n" + "-fx-background-color: #000777");
+        });
+        startButton.setOnMouseExited(e -> {
+           startButton.setStyle("-fx-graphic: url('if_Replay.png'); \n" + "-fx-background-color: #80ced6");
+        });
        
         backButton.setOnAction((ActionEvent e) -> {
             mediaPlayer.seek(mediaPlayer.getCurrentTime().divide(1.2));
         });
+        backButton.setOnMouseEntered(e -> {
+           backButton.setStyle("-fx-graphic: url('if_Rewind_2001873.png'); \n" + "-fx-background-color: #000777");
+        });
+        backButton.setOnMouseExited(e -> {
+           backButton.setStyle("-fx-graphic: url('if_Rewind_2001873.png'); \n" + "-fx-background-color: #80ced6");
+        });
+        
         forwardButton.setOnAction((ActionEvent e) -> {
             mediaPlayer.seek(mediaPlayer.getCurrentTime().multiply(1.2));
+        });
+        forwardButton.setOnMouseEntered(e -> {
+           forwardButton.setStyle("-fx-graphic: url('if_Fast_Forward_2001867.png'); \n" + "-fx-background-color: #000777");
+        });
+        forwardButton.setOnMouseExited(e -> {
+           forwardButton.setStyle("-fx-graphic: url('if_Fast_Forward_2001867.png'); \n" + "-fx-background-color: #80ced6");
         });
         
         //*************************** Alert box ******************************
@@ -475,6 +476,12 @@ public class NewFXMain1 extends Application implements MouseListener {
                 a.setTitle("Properties");
                 a.showAndWait();
                 
+        });
+        MediaProp.setOnMouseEntered(e -> {
+           MediaProp.setStyle("-fx-graphic: url('if_stock_view-details_24335.png'); \n" + "-fx-background-color: #000777");
+        });
+        MediaProp.setOnMouseExited(e -> {
+           MediaProp.setStyle("-fx-graphic: url('if_stock_view-details_24335.png'); \n" + "-fx-background-color: #80ced6");
         });
         
         
@@ -500,8 +507,37 @@ public class NewFXMain1 extends Application implements MouseListener {
                 }
                   
         });
+        volbtn.setOnMouseEntered(e -> {
+            if(flag%2==1)
+                volbtn.setStyle("-fx-graphic: url('if_Volume_Mute_2001875.png'); \n" + "-fx-background-color: #000777");
+            else
+                volbtn.setStyle("-fx-graphic: url('if_Volume_Max_2001874.png'); \n" + "-fx-background-color: #000777");
+        });
+        volbtn.setOnMouseExited(e -> {
+           if(flag%2==1)
+                volbtn.setStyle("-fx-graphic: url('if_Volume_Mute_2001875.png'); \n" + "-fx-background-color: #80ced6");
+            else
+                volbtn.setStyle("-fx-graphic: url('if_Volume_Max_2001874.png'); \n" + "-fx-background-color: #80ced6");
+        });
+        
         filesButton.setOnAction((ActionEvent e) -> {
-               try {
+               chooseFile(1);
+        });
+        filesButton.setOnMouseEntered(e -> {
+           filesButton.setStyle("-fx-graphic: url('if_open-file_85334.png'); \n" + "-fx-background-color: #000777");
+        });
+        filesButton.setOnMouseExited(e -> {
+           filesButton.setStyle("-fx-graphic: url('if_open-file_85334.png'); \n" + "-fx-background-color: #80ced6");
+        });
+        
+        
+      toolBar.getChildren().addAll(filesButton,speedButton,speedSlider,startButton,backButton,playButton,forwardButton,time,timeSlider,volbtn,volumeSlider,vollabel,MediaProp);
+        return toolBar;
+    }
+    
+    void chooseFile(int prev)
+    {
+        try {
                    playButtonCount = 0;
                 int flag2=1;
                 fc = new FileChooser();
@@ -536,7 +572,10 @@ public class NewFXMain1 extends Application implements MouseListener {
                             borderPane.setCenter(img2);
                         }
                         media = new Media(new File(path).toURI().toString());
-                        mediaPlayer.stop();
+                        
+                        if(prev == 1)
+                            mediaPlayer.stop();
+                        
                         mediaPlayer = new MediaPlayer(media);
                         mediaPlayer.setAutoPlay(true);
                         if(flag2==1){
@@ -554,13 +593,6 @@ public class NewFXMain1 extends Application implements MouseListener {
             } catch (Exception ex) {
                 Logger.getLogger(NewFXMain1.class.getName()).log(Level.SEVERE, null, ex);
             }
-          
-        });
-        
-        
-        
-      toolBar.getChildren().addAll(filesButton,speedButton,speedSlider,startButton,backButton,playButton,forwardButton,time,timeSlider,volbtn,volumeSlider,vollabel,MediaProp);
-        return toolBar;
     }
     
     Duration currentTime;
