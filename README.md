@@ -10,8 +10,8 @@ Double click the executable - student.jar file or open the project in netbeans i
 ```
 
 # Developers
-* Arindam Das Modak
-* Yashwardhan Gupta
+* Arindam Das Modak [arindam-modak](https://github.com/arindam-modak)
+* Yashwardhan Gupta [yash-1998](https://github.com/yash-1998)
 * Rishab Agarwal
 * Shiv Kumar
 * Saurabh Mishra
